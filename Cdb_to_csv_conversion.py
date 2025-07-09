@@ -1,6 +1,7 @@
 """
 Dobljeno .cdb datoteko spremenimo v 2 .csv datoteki.
-V eni se nahajajo podatki o vozliscih, v drugi pa podatki o ploskvah.
+V prvi so posamezna vozlisca in x,y,z koordinate vsakega.
+V drugi so shranjeni podatki, katere 3 tocke tvorijo posamezen trikotnik.
 
 Datoteko zazenemo preko zazenemo preko ukazne vrstice: 
 python Cdb_to_csv_conversion.py "C:\lokacija\cdb\datoteke.cdb"
