@@ -12,9 +12,8 @@ from pathlib import Path
 import numpy as np
 import ansys.mapdl.reader as rdr
 
-# ------------------------------------------------------------------
+
 # 0) Potrdimo, da podana datoteka obstaja
-# ------------------------------------------------------------------
 if len(sys.argv) != 2:
     sys.exit("Run as: python Cdb_to_csv_conversion.py C:\location\cdb\file.cdb")
 
@@ -22,28 +21,24 @@ cdb_path = Path(sys.argv[1]).expanduser().resolve()
 if not cdb_path.is_file():
     sys.exit(f"File not found: {cdb_path}")
 
-# ------------------------------------------------------------------
+
 # 1) Branje CDB datoteke
-# ------------------------------------------------------------------
 arc  = rdr.Archive(str(cdb_path))      # Nalozimo Ansys Cdb z PyMAPDL Readerjem
 grid = arc.grid                        # Pridobimo celotno mrezo
 print(f"Volume mesh : {grid.n_points} points  |  {grid.n_cells} cells")
 
-# ------------------------------------------------------------------
-# 2) Pridobivanje povrsine, triangulacija
-# ------------------------------------------------------------------
+
+# 2) Pridobivanje povrsine (potrebujemo le povrsinske tocke), triangulacija
 surf = grid.extract_surface().triangulate()
 print(f"Surface mesh: {surf.n_points} verts   |  {surf.n_faces} tris")
 
-# ------------------------------------------------------------------
-# 3) Podatke shranimo v Numpy matrike
-# ------------------------------------------------------------------
-verts = surf.points                                # (N,3) float64
-faces = surf.faces.reshape(-1, 4)[:, 1:]           # (M,3) int32
 
-# ------------------------------------------------------------------
+# 3) Podatke shranimo v Numpy matrike
+verts = surf.points                               
+faces = surf.faces.reshape(-1, 4)[:, 1:]           
+
+
 # 4) Zapisemo obe .csv datoteki v direktorij .cdb datoteke
-# ------------------------------------------------------------------
 out_dir = cdb_path.parent
 vfile   = out_dir / "beam_vertices.csv"
 ffile   = out_dir / "beam_faces.csv"
