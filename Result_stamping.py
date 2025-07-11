@@ -58,7 +58,9 @@ for v in mesh.vertices:
     co_world = world @ v.co
     _, idx, _ = kd.find(co_world)
     val = nodes_val[idx]
-    layer.data[v.index].color = (val, val, val, 1.0)
-
+    layer.data[v.index].color = (val, val, val, 1.0)        
 mesh.update()
+
+print("Result value min:", min(nodes_val))      # Dobimo se informacijo o min in max resitvi
+print("Result value max:", max(nodes_val))
 print(f"Stamped stress on {len(mesh.vertices):,} of {len(mesh.vertices):,} vertices.")
