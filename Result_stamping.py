@@ -1,5 +1,14 @@
 """
 Koda poljubne rezultate numericne analize pripise vozliscem objekta v Blenderju.
+Skripta pricakuje .txt datoteko oblike:
+Node Number	X Location (m)	Y Location (m)	Z Location (m)	Equivalent (von-Mises) Stress (Pa)
+1	1.1959e-003	0.10182	5.e-003	2.5958e+009
+2	1.1959e-003	0.10182	1.e-002	2.4928e+009
+3	1.1959e-003	0.10182	1.5e-002	2.3612e+009
+4	1.1959e-003	0.10182	2.e-002	2.3229e+009
+5	1.1959e-003	0.10182	2.5e-002	2.2931e+009
+...
+
 Skripto pozenemo v Blender 'Scripting' zavihku.
 Pred zagonom spremenimo lokacijo rezultatov in ime rezultatov ter ime dodanega objekta.
 """
@@ -24,17 +33,19 @@ with open(txt_path, encoding="utf-8", newline='') as f:
             break
     header = [h.strip() for h in header_raw]
     hmap   = {h: i for i, h in enumerate(header)}
-    need   = ("X", "Y", "Z", field)
+    
     # Preverimo, da imamo vse potrebne podatke
+    coord_headers = ("X Location (m)", "Y Location (m)", "Z Location (m)")
+    need = (*coord_headers, field)
     if not all(k in hmap for k in need):
         raise RuntimeError(f"Missing one of {need} in TXT header: {header}")
 
     for row in csv.reader(f, delimiter='\t'):
         if not row or len(row) < len(header):
             continue
-        co = mathutils.Vector((str2f(row[hmap["X"]]) * scale,
-                               str2f(row[hmap["Y"]]) * scale,
-                               str2f(row[hmap["Z"]]) * scale))
+        co = mathutils.Vector((str2f(row[hmap["X Location (m)"]]) * scale,
+                               str2f(row[hmap["Y Location (m)"]]) * scale,
+                               str2f(row[hmap["Z Location (m)"]]) * scale))
         nodes_co.append(co)
         nodes_val.append(str2f(row[hmap[field]]))
 
