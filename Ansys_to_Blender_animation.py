@@ -1,5 +1,6 @@
 """
 Skripta ustvari nedeformirano obliko, ji pripise kljuce oblike in ustvari animacijo.
+Pozenemo jo v Blender 'Scripting' zavihku.
 Pred zagonom spremenimo lokacijo in imena datotek, stevilo korakov, faktor skaliranja in presledek med slicicami.
 Skripta predvideva, da imamo v osnovnem direktoriju obe .csv datoteki in v njem se eno mapo s smernimi deformacijami.
 """
