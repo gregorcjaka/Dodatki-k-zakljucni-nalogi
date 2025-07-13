@@ -14,7 +14,7 @@ Pred zagonom spremenimo lokacijo rezultatov in ime rezultatov ter ime dodanega o
 """
 import bpy, csv, mathutils
 
-txt_path = r"C:\Location\to\results.txt"         # Lokacija do .txt datoteke
+txt_path = r"C:\Users\grego\OneDrive\Dokumenti\Faks\Trial_Run\Stress_results.txt"         # Lokacija do .txt datoteke
 object = "test_undeformed_mesh"                  # Objekt z dodanim kljucem oblike
 field = "Equivalent (von-Mises) Stress (Pa)"     # Ime rezultatov
 scale = 1.0                                      # Ce so enote v metrih, pustim na 1
@@ -66,10 +66,22 @@ layer = mesh.color_attributes.get(field) \
 
 # Glavna zanka
 for v in mesh.vertices:
+    k = 9             # Koliko sosedov uporabimo za izracun vrednosti (poljubno)
+
     co_world = world @ v.co
-    _, idx, _ = kd.find(co_world)
-    val = nodes_val[idx]
-    layer.data[v.index].color = (val, val, val, 1.0)        
+    # Najdemo najblizja sosednja vozlisca
+    neighbors = kd.find_n(co_world, k)
+
+    # Racunanje utezi vsakega vozlisca
+    val_num = 0.0
+    val_den = 0.0
+    for co, idx, dist in neighbors:
+        w = 1.0 / (dist*dist + 1e-12)   # Vsak sosed prispeva s tezo ∝ 1 / r² (teza pada z razdaljo)
+        val_num += w * nodes_val[idx]
+        val_den += w
+
+    val = val_num / val_den             # Utezeno povprecje
+    layer.data[v.index].color = (val, val, val, 1.0)       
 mesh.update()
 
 print("Result value min:", min(nodes_val))      # Dobimo se informacijo o min in max resitvi
