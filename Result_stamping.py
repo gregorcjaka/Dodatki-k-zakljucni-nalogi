@@ -14,10 +14,11 @@ Pred zagonom spremenimo lokacijo rezultatov in ime rezultatov ter ime dodanega o
 """
 import bpy, csv, mathutils
 
-txt_path = r"C:\Users\grego\OneDrive\Dokumenti\Faks\Trial_Run\Stress_results.txt"         # Lokacija do .txt datoteke
+txt_path = r"C:\Location\to\Stress_results.txt"  # Lokacija do .txt datoteke
 object = "test_undeformed_mesh"                  # Objekt z dodanim kljucem oblike
 field = "Equivalent (von-Mises) Stress (Pa)"     # Ime rezultatov
 scale = 1.0                                      # Ce so enote v metrih, pustim na 1
+num_neighbours = 9                               # Stevilo uporabljenih sosedov za interpolacijo
 
 def str2f(s): return float(s.replace(',', '.'))
 
@@ -70,7 +71,7 @@ for v in mesh.vertices:
 
     co_world = world @ v.co
     # Najdemo najblizja sosednja vozlisca
-    neighbors = kd.find_n(co_world, k)
+    neighbors = kd.find_n(co_world, num_neighbours)
 
     # Racunanje utezi vsakega vozlisca
     val_num = 0.0
