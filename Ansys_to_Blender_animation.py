@@ -18,13 +18,13 @@ def_scale    = 1                   # faktor skaliranja deformacije
 add_keyframes = True               # ce ne zelimo animacije, spremenimo v False
 frame_step    = 20                 # stevilo slicic med posameznimi kljuci
 
-v_path = folder / "beam_vertices.csv"
-f_path = folder / "beam_faces.csv"
+verts_path = folder / "beam_vertices.csv"
+faces_path = folder / "beam_faces.csv"
 
 
 # Pomagalna funkcija, float -> int za hitrejse iskanje po slovarju
 factor = 1.0 / tol                 # npr. 1e5
-def qkey(pt):
+def transform(pt):
     """
     Pretvori stevila s plavajoco vejico v integer, za hitrejse iskanje.
     Pricakovan vhod: numpy.ndarray ali 3-mestna terka (x, y, z).
@@ -53,7 +53,7 @@ def load_def_file(path):
                 continue
             x, y, z = map(float, cols[1:4])   # Preberemo potrebne podatke
             disp = float(cols[4])
-            d[qkey((x, y, z))] = disp   # Shrani se le (x,y,z): deformacija
+            d[transform((x, y, z))] = disp   # Shrani se le (x,y,z): deformacija
     return d
 
 
@@ -81,7 +81,7 @@ def nearest_disp(pt, buckets):
     Pricakovan vhod: pt = terka koordinat iz .csv, buckets = bucket slovar.
     Izhod: Deformacija tocke pt oz. 0, ce ta ni najdena.
     """
-    k = qkey(pt)        # Poklicemo qkey, da so koordinate enake oblike kot v bucketu
+    k = transform(pt)        # Poklicemo transform, da so koordinate enake oblike kot v bucketu
     best_d  = 0.0
     best_r2 = tol2 + 1.0
     for s in nb_shifts:
@@ -95,8 +95,8 @@ def nearest_disp(pt, buckets):
 
 
 # 1)  Rekonstrukcija mreze
-verts = np.loadtxt(v_path, delimiter=",", skiprows=1, dtype=float)
-faces = np.loadtxt(f_path, delimiter=",", skiprows=1, dtype=np.int64)
+verts = np.loadtxt(verts_path, delimiter=",", skiprows=1, dtype=float)
+faces = np.loadtxt(faces_path, delimiter=",", skiprows=1, dtype=np.int64)
 print(f"Loaded {len(verts):,} verts | {len(faces):,} faces")
 
 mesh = bpy.data.meshes.new("BeamMesh")
