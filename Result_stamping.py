@@ -33,28 +33,26 @@ with open(txt_path, encoding="utf-8", newline='') as f:
             header_raw = line.rstrip('\r\n').split('\t')
             break
     header = [h.strip() for h in header_raw]
-    hmap   = {h: i for i, h in enumerate(header)}
+    data = {h: i for i, h in enumerate(header)}
     
     # Preverimo, da imamo vse potrebne podatke
     coord_headers = ("X Location (m)", "Y Location (m)", "Z Location (m)")
     need = (*coord_headers, field)
-    if not all(k in hmap for k in need):
+    if not all(k in data for k in need):
         raise RuntimeError(f"Missing one of {need} in TXT header: {header}")
 
     for row in csv.reader(f, delimiter='\t'):
         if not row or len(row) < len(header):
             continue
-        co = mathutils.Vector((str2f(row[hmap["X Location (m)"]]) * scale,
-                               str2f(row[hmap["Y Location (m)"]]) * scale,
-                               str2f(row[hmap["Z Location (m)"]]) * scale))
+        co = mathutils.Vector((str2f(row[data["X Location (m)"]]) * scale, str2f(row[data["Y Location (m)"]]) * scale, str2f(row[data["Z Location (m)"]]) * scale))
         nodes_co.append(co)
-        nodes_val.append(str2f(row[hmap[field]]))
+        nodes_val.append(str2f(row[data[field]]))
 
 # 2) Zgradimo drevo velikosti nodes_co in ga napolnimo s koordinatami vozlisc
-kd = mathutils.kdtree.KDTree(len(nodes_co))
+kd_tree = mathutils.kdtree.KDTree(len(nodes_co))
 for i, co in enumerate(nodes_co):
-    kd.insert(co, i)
-kd.balance()        # Poskrbi, da so tocke v optimalnem uravnotezenem drevesu
+    kd_tree.insert(co, i)
+kd_tree.balance()        # Poskrbi, da so tocke v optimalnem uravnotezenem drevesu
 
 # 3) Pripisemo vrednosti na verteks-barvo
 obj   = bpy.data.objects[object]
@@ -71,7 +69,7 @@ for v in mesh.vertices:
 
     co_world = world @ v.co
     # Najdemo najblizja sosednja vozlisca
-    neighbors = kd.find_n(co_world, num_neighbours)
+    neighbors = kd_tree.find_n(co_world, num_neighbours)
 
     # Racunanje utezi vsakega vozlisca
     val_num = 0.0
